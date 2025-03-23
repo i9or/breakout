@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.29)
 project(breakout C)
 
 set(CMAKE_C_STANDARD 99)
@@ -16,6 +16,10 @@ FetchContent_Declare(SDL
         SYSTEM)
 FetchContent_MakeAvailable(SDL)
 
-add_executable(${PROJECT_NAME} WIN32 src/main.c src/game.h
-        src/game.c)
+add_executable(${PROJECT_NAME} WIN32
+        src/main.c
+        src/game.h
+        src/game.c
+        src/utils/vec2.c
+        src/utils/vec2.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)

@@ -6,6 +6,8 @@
 
 #include "game.h"
 
+#include <stdio.h>
+
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -24,6 +26,30 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     return SDL_APP_FAILURE;
   }
 
+  // TODO: Remove debug code
+  SDL_Surface* surface = NULL;
+  char bmpPath[256];
+  sprintf(bmpPath, "%s../assets/images/mushroom.bmp", SDL_GetBasePath());
+  surface = SDL_LoadBMP(bmpPath);
+  if (!surface) {
+    SDL_Log("Couldn't load bitmap: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  const Uint32 colorKey = SDL_MapSurfaceRGB(surface, 255, 0, 255);
+  SDL_SetSurfaceColorKey(surface, true, colorKey);
+
+  game->mushroomTexture = SDL_CreateTextureFromSurface(game->renderer, surface);
+  if (!game->mushroomTexture) {
+    SDL_Log("Couldn't create mushroom texture: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  SDL_SetTextureScaleMode(game->mushroomTexture, SDL_SCALEMODE_NEAREST);
+
+  SDL_DestroySurface(surface);
+  // End of TODO
+
   return SDL_APP_CONTINUE;
 }
 
@@ -31,8 +57,14 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN:
+    if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
+      return SDL_APP_SUCCESS;
+    }
+    break;
+
   case SDL_EVENT_QUIT:
     return SDL_APP_SUCCESS;
+
   default:
     break;
   }
@@ -42,24 +74,65 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 SDL_AppResult SDL_AppIterate(void* appstate) {
-  const Game* game = appstate;
+  Game* game = appstate;
 
-  const char* message = "Breakout";
-  int w = 0, h = 0;
-  const float scale = 4.f;
+  // Calculate delta time
+  float newTime = (float)SDL_GetTicks() / 1000.f;
+  float frameTime = newTime - game->currentTime;
 
-  SDL_GetRenderOutputSize(game->renderer, &w, &h);
-  SDL_SetRenderScale(game->renderer, scale, scale);
-  const float x = ((float)w / scale -
-                   SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * SDL_strlen(message)) /
-                  2;
-  const float y = ((float)h / scale - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2;
+  if (frameTime > 0.25f) {
+    frameTime = 0.25f;
+  }
 
+  game->currentTime = newTime;
+  game->accumulator += frameTime;
+
+  // Update
+  while (game->accumulator >= FIXED_TIMESTEP) {
+    game->mushroomPreviousPosition = game->mushroomPosition;
+    game->mushroomPosition = vec2Add(game->mushroomPosition,
+                                     vec2Multiply(game->mushroomVelocity,
+                                                  FIXED_TIMESTEP));
+
+    const float x = game->mushroomPosition.x;
+    const float y = game->mushroomPosition.y;
+    const float w = (float)game->mushroomTexture->w;
+    const float h = (float)game->mushroomTexture->h;
+
+    if (x + w > (float)game->viewportWidth ||
+        x < 0.f) {
+      game->mushroomVelocity.x *= -1.f;
+    }
+
+    if (y + h > (float)game->viewportHeight ||
+        y < 0.f) {
+      game->mushroomVelocity.y *= -1.f;
+    }
+
+    game->accumulator -= FIXED_TIMESTEP;
+  }
+
+  float alpha = game->accumulator / FIXED_TIMESTEP;
+
+  // Render
   SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
   SDL_RenderClear(game->renderer);
-  SDL_SetRenderDrawColor(game->renderer, 0, 255, 0, 255);
-  SDL_RenderDebugText(game->renderer, x, y, message);
+
+  SDL_FRect dstRect;
+
+  float prevX = game->mushroomPreviousPosition.x;
+  float prevY = game->mushroomPreviousPosition.y;
+  float currX = game->mushroomPosition.x;
+  float currY = game->mushroomPosition.y;
+  dstRect.x = currX * alpha + prevX * (1.f - alpha);
+  dstRect.y = currY * alpha + prevY * (1.f - alpha);
+  dstRect.w = (float)game->mushroomTexture->w;
+  dstRect.h = (float)game->mushroomTexture->h;
+  SDL_RenderTexture(game->renderer, game->mushroomTexture, NULL, &dstRect);
+
   SDL_RenderPresent(game->renderer);
+
+  SDL_Delay(1);
 
   return SDL_APP_CONTINUE;
 }
