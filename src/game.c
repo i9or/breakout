@@ -14,8 +14,6 @@ Game* createGame(const int windowWidth, const int windowHeight) {
 
   game->windowWidth = windowWidth;
   game->windowHeight = windowHeight;
-  game->viewportWidth = 0.f;
-  game->viewportHeight = 0.f;
 
   game->mushroomTexture = NULL;
   game->mushroomPreviousPosition = (Vec2){.x = 0.f, .y = 0.f};
@@ -37,19 +35,12 @@ bool initGame(Game* game) {
     return false;
   }
 
-  if (!SDL_SetRenderScale(game->renderer, 2.f, 2.f)) {
-    SDL_Log("Couldn't set renderer scale: %s", SDL_GetError());
+  if (!SDL_SetRenderLogicalPresentation(game->renderer,
+                                        game->windowWidth, game->windowHeight,
+                                        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE)) {
+    SDL_Log("Couldn't set renderer logical presentation: %s", SDL_GetError());
     return false;
   }
-
-  SDL_Rect viewport;
-  if (!SDL_GetRenderViewport(game->renderer, &viewport)) {
-    SDL_Log("Couldn't get renderer viewport: %s", SDL_GetError());
-    return false;
-  }
-
-  game->viewportWidth = (float)viewport.w;
-  game->viewportHeight = (float)viewport.h;
 
   game->mushroomPosition = (Vec2){.x = 10.f, .y = 10.f};
   game->mushroomVelocity = (Vec2){.x = 100.f, .y = 100.f};

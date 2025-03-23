@@ -3,6 +3,10 @@ project(breakout C)
 
 set(CMAKE_C_STANDARD 99)
 
+if(APPLE)
+    add_compile_options(-Wno-deprecated-declarations)
+endif()
+
 set(PROJECT_OUTPUT_BIN_DIR "${PROJECT_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_OUTPUT_BIN_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_OUTPUT_BIN_DIR}")

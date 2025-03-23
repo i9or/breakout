@@ -15,7 +15,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     return SDL_APP_FAILURE;
   }
 
-  Game* game = createGame(1280, 1024);
+  Game* game = createGame(1024, 768);
   if (!game) {
     return SDL_APP_FAILURE;
   }
@@ -88,47 +88,45 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
   game->accumulator += frameTime;
 
   // Update
-  while (game->accumulator >= FIXED_TIMESTEP) {
+  while (game->accumulator >= FIXED_TIME_STEP) {
     game->mushroomPreviousPosition = game->mushroomPosition;
     game->mushroomPosition = vec2Add(game->mushroomPosition,
                                      vec2Multiply(game->mushroomVelocity,
-                                                  FIXED_TIMESTEP));
+                                                  FIXED_TIME_STEP));
 
     const float x = game->mushroomPosition.x;
     const float y = game->mushroomPosition.y;
     const float w = (float)game->mushroomTexture->w;
     const float h = (float)game->mushroomTexture->h;
 
-    if (x + w > (float)game->viewportWidth ||
+    if (x + w > (float)game->windowWidth ||
         x < 0.f) {
       game->mushroomVelocity.x *= -1.f;
     }
 
-    if (y + h > (float)game->viewportHeight ||
+    if (y + h > (float)game->windowHeight ||
         y < 0.f) {
       game->mushroomVelocity.y *= -1.f;
     }
 
-    game->accumulator -= FIXED_TIMESTEP;
+    game->accumulator -= FIXED_TIME_STEP;
   }
 
-  float alpha = game->accumulator / FIXED_TIMESTEP;
+  float alpha = game->accumulator / FIXED_TIME_STEP;
 
   // Render
   SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
   SDL_RenderClear(game->renderer);
 
-  SDL_FRect dstRect;
-
   float prevX = game->mushroomPreviousPosition.x;
   float prevY = game->mushroomPreviousPosition.y;
   float currX = game->mushroomPosition.x;
   float currY = game->mushroomPosition.y;
-  dstRect.x = currX * alpha + prevX * (1.f - alpha);
-  dstRect.y = currY * alpha + prevY * (1.f - alpha);
-  dstRect.w = (float)game->mushroomTexture->w;
-  dstRect.h = (float)game->mushroomTexture->h;
-  SDL_RenderTexture(game->renderer, game->mushroomTexture, NULL, &dstRect);
+  game->mushroomRect.x = currX * alpha + prevX * (1.f - alpha);
+  game->mushroomRect.y = currY * alpha + prevY * (1.f - alpha);
+  game->mushroomRect.w = (float)game->mushroomTexture->w;
+  game->mushroomRect.h = (float)game->mushroomTexture->h;
+  SDL_RenderTexture(game->renderer, game->mushroomTexture, NULL, &game->mushroomRect);
 
   SDL_RenderPresent(game->renderer);
 

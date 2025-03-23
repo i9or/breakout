@@ -5,7 +5,7 @@
 
 #include "utils/vec2.h"
 
-#define FIXED_TIMESTEP 1.f / 60.f
+#define FIXED_TIME_STEP 1.f / 60.f
 
 typedef struct Game {
   SDL_Window* window;
@@ -13,13 +13,12 @@ typedef struct Game {
 
   int windowWidth;
   int windowHeight;
-  float viewportWidth;
-  float viewportHeight;
 
   SDL_Texture* mushroomTexture;
   Vec2 mushroomPreviousPosition;
   Vec2 mushroomPosition;
   Vec2 mushroomVelocity;
+  SDL_FRect mushroomRect;
 
   // Time step
   float currentTime;
