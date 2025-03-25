@@ -21,9 +21,10 @@ typedef struct Game {
   SDL_FRect mushroomRect;
 
   // Time step
-  float currentTime;
+  Uint64 currentTime;
+  Uint64 lastTime;
+  Uint64 frequency;
   float accumulator;
-  float lastTime;
 
   // Debug flags
   bool showFPS;

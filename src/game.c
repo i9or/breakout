@@ -20,16 +20,23 @@ Game* createGame(const int windowWidth, const int windowHeight) {
   game->mushroomPosition = (Vec2){.x = 0.f, .y = 0.f};
   game->mushroomVelocity = (Vec2){.x = 0.f, .y = 0.f};
 
-  game->currentTime = 0.f;
+  game->currentTime = 0;
+  game->lastTime = 0;
+  game->frequency = 0;
   game->accumulator = 0.f;
-  game->lastTime = 0.f;
 
   return game;
 }
 
 bool initGame(Game* game) {
+  const SDL_DisplayID di = SDL_GetPrimaryDisplay();
+  float scale = SDL_GetDisplayContentScale(di);
+  if (scale < 1.f) {
+    scale = 1.f;
+  }
+
   if (!SDL_CreateWindowAndRenderer("Breakout",
-                                   game->windowWidth, game->windowHeight, 0,
+                                   game->windowWidth * (int)scale, game->windowHeight * (int)scale, 0,
                                    &game->window, &game->renderer)) {
     SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
     return false;
@@ -43,10 +50,11 @@ bool initGame(Game* game) {
   }
 
   game->mushroomPosition = (Vec2){.x = 10.f, .y = 10.f};
-  game->mushroomVelocity = (Vec2){.x = 100.f, .y = 100.f};
+  game->mushroomVelocity = (Vec2){.x = 1.f, .y = 1.f};
 
   game->accumulator = 0.f;
-  game->currentTime = (float)SDL_GetTicks() / 1000.f;
+  game->currentTime = SDL_GetPerformanceCounter();
+  game->frequency = SDL_GetPerformanceFrequency();
   game->lastTime = game->currentTime;
 
   return true;

@@ -77,14 +77,13 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
   Game* game = appstate;
 
   // Calculate delta time
-  float newTime = (float)SDL_GetTicks() / 1000.f;
-  float frameTime = newTime - game->currentTime;
+  game->currentTime = SDL_GetPerformanceCounter();
+  float frameTime = (float)(game->currentTime - game->lastTime) / (float)game->frequency;
 
   if (frameTime > 0.25f) {
     frameTime = 0.25f;
   }
 
-  game->currentTime = newTime;
   game->accumulator += frameTime;
 
   // Update
