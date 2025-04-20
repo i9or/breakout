@@ -53,7 +53,6 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
   return SDL_APP_CONTINUE;
 }
 
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN:
@@ -72,7 +71,6 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
   return SDL_APP_CONTINUE;
 }
 
-// ReSharper disable once CppParameterMayBeConstPtrOrRef
 SDL_AppResult SDL_AppIterate(void* appstate) {
   Game* game = appstate;
 

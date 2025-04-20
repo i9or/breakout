@@ -12,7 +12,7 @@ A classic Breakout game clone built using C and SDL3.
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/breakout.git
+git clone https://github.com/i9or/breakout.git
 cd breakout
 ```
 

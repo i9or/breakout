@@ -36,7 +36,9 @@ bool initGame(Game* game) {
   }
 
   if (!SDL_CreateWindowAndRenderer("Breakout",
-                                   game->windowWidth * (int)scale, game->windowHeight * (int)scale, 0,
+                                   game->windowWidth * (int)scale,
+                                   game->windowHeight * (int)scale,
+                                   0,
                                    &game->window, &game->renderer)) {
     SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
     return false;
