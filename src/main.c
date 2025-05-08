@@ -53,6 +53,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
   return SDL_APP_CONTINUE;
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN:
@@ -71,22 +72,22 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
   return SDL_APP_CONTINUE;
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 SDL_AppResult SDL_AppIterate(void* appstate) {
   Game* game = appstate;
 
   // Calculate delta time
   game->currentTime = SDL_GetPerformanceCounter();
-  float frameTime = (float)(game->currentTime - game->lastTime) / (float)game->frequency;
+  float deltaTime = (float)(game->currentTime - game->lastTime) / (float)game->frequency;
 
-  if (frameTime > 0.25f) {
-    frameTime = 0.25f;
+  if (deltaTime > 0.25f) {
+    deltaTime = 0.25f;
   }
 
-  game->accumulator += frameTime;
+  game->accumulator += deltaTime;
 
   // Update
   while (game->accumulator >= FIXED_TIME_STEP) {
-    game->mushroomPreviousPosition = game->mushroomPosition;
     game->mushroomPosition = vec2Add(game->mushroomPosition,
                                      vec2Multiply(game->mushroomVelocity,
                                                   FIXED_TIME_STEP));
@@ -109,18 +110,14 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
     game->accumulator -= FIXED_TIME_STEP;
   }
 
-  float alpha = game->accumulator / FIXED_TIME_STEP;
-
   // Render
   SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255);
   SDL_RenderClear(game->renderer);
 
-  float prevX = game->mushroomPreviousPosition.x;
-  float prevY = game->mushroomPreviousPosition.y;
   float currX = game->mushroomPosition.x;
   float currY = game->mushroomPosition.y;
-  game->mushroomRect.x = currX * alpha + prevX * (1.f - alpha);
-  game->mushroomRect.y = currY * alpha + prevY * (1.f - alpha);
+  game->mushroomRect.x = currX;
+  game->mushroomRect.y = currY;
   game->mushroomRect.w = (float)game->mushroomTexture->w;
   game->mushroomRect.h = (float)game->mushroomTexture->h;
   SDL_RenderTexture(game->renderer, game->mushroomTexture, NULL, &game->mushroomRect);

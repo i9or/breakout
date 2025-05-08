@@ -15,7 +15,6 @@ typedef struct Game {
   int windowHeight;
 
   SDL_Texture* mushroomTexture;
-  Vec2 mushroomPreviousPosition;
   Vec2 mushroomPosition;
   Vec2 mushroomVelocity;
   SDL_FRect mushroomRect;

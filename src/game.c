@@ -16,7 +16,6 @@ Game* createGame(const int windowWidth, const int windowHeight) {
   game->windowHeight = windowHeight;
 
   game->mushroomTexture = NULL;
-  game->mushroomPreviousPosition = (Vec2){.x = 0.f, .y = 0.f};
   game->mushroomPosition = (Vec2){.x = 0.f, .y = 0.f};
   game->mushroomVelocity = (Vec2){.x = 0.f, .y = 0.f};
 
@@ -52,7 +51,7 @@ bool initGame(Game* game) {
   }
 
   game->mushroomPosition = (Vec2){.x = 10.f, .y = 10.f};
-  game->mushroomVelocity = (Vec2){.x = 1.f, .y = 1.f};
+  game->mushroomVelocity = (Vec2){.x = 5.f, .y = 5.f};
 
   game->accumulator = 0.f;
   game->currentTime = SDL_GetPerformanceCounter();
