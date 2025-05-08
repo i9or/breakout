@@ -1,6 +1,8 @@
 ---
 BasedOnStyle: LLVM
+UseTab: Always
 IndentWidth: 2
+TabWidth: 2
 ColumnLimit: 0
 AlignAfterOpenBracket: Align
 BreakBeforeBraces: Attach
